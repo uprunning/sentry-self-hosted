@@ -3,7 +3,11 @@ FROM ${BASE_IMAGE}
 USER 0
 RUN if [ -z "${http_proxy}" ]; then echo "Acquire::http::proxy \"${http_proxy}\";" >> /etc/apt/apt.conf; fi
 RUN if [ -z "${https_proxy}" ]; then echo "Acquire::https::proxy \"${https_proxy}\";" >> /etc/apt/apt.conf; fi
-COPY apt.sources.list /etc/apt/sources.list
+RUN cat /etc/apt/sources.list
+RUN sed -i 's;deb http://deb.debian.org/debian stretch main;deb http://archive.debian.org/debian/ stretch main contrib;g' /etc/apt/sources.list
+RUN sed -i 's;deb http://security.debian.org/debian-security stretch/updates main;deb http://archive.debian.org/debian/ stretch-proposed-updates main contrib;g' /etc/apt/sources.list
+RUN sed -i 's;deb http://deb.debian.org/debian stretch-updates main;deb http://archive.debian.org/debian-security stretch/updates main contrib;g' /etc/apt/sources.list
+RUN cat /etc/apt/sources.list
 RUN apt-get update && apt-get install -y --no-install-recommends cron && \
     rm -r /var/lib/apt/lists/*
 COPY entrypoint.sh /entrypoint.sh
